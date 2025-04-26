@@ -1,5 +1,11 @@
 # strava-discord-bot
 
+## Fork
+
+This is a fork from the https://github.com/asweinrich/strava-bot dockerized and with a couple of fixes.
+
+## Original
+
 Listens for new Activities in Strava and sends embedded Discord messages with Activity details. 
 
 *This project was originally forked from the [discord-example-app](https://github.com/discord/discord-example-app) repo. ChatGPT was used to help write this README.*

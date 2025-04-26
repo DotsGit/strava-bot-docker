@@ -25,7 +25,7 @@ export async function DiscordRequest(endpoint, options) {
     headers: {
       Authorization: `Bot ${process.env.DISCORD_TOKEN}`,
       'Content-Type': 'application/json; charset=UTF-8',
-      'User-Agent': 'DiscordBot (https://github.com/asweinrich/strava-bot, 1.0.0)',
+      'User-Agent': 'DiscordBot (https://github.com/DotsGit/strava-bot-docker, 1.0.1)',
     },
     ...options
   });

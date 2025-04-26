@@ -21,13 +21,6 @@ import { getAccessToken } from './strava.js';
 
 const client = new Client({ intents: [GatewayIntentBits.Guilds] });
 
-if (process.env.STRAVA_CLUB_ID) {
-  let stravaClubID = process.env.STRAVA_CLUB_ID;
-} else {
-  throw new Error('Missing STRAVA_CLUB_ID');
-}
-
-
 let channel = null
 
 client.once(Events.ClientReady, c => {
@@ -128,6 +121,14 @@ setInterval(() => {
     .catch(error => {
       console.error(error)
     })
+
+  let stravaClubID = null;
+
+  if (process.env.STRAVA_CLUB_ID) {
+    stravaClubID = process.env.STRAVA_CLUB_ID;
+  } else {
+    throw new Error('Missing STRAVA_CLUB_ID');
+  }
 
   axios.get('https://www.strava.com/api/v3/clubs/' + stravaClubID + '/activities?page=1&per_page=1', {
     headers: {

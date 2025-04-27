@@ -43,6 +43,7 @@ function generateHash(string) {
   return hash;
 }
 
+"a"
 
 // Create an express app
 const app = express();

@@ -1,4 +1,4 @@
-import 'dotenv/config';
+// import 'dotenv/config';
 
 import express from 'express';
 
@@ -83,8 +83,6 @@ app.post('/interactions', async function (req, res) {
 
 });
 
-let channel_msg = ""
-
 app.listen(PORT, async () => {
   console.log('Listening on port', PORT);
 
@@ -94,19 +92,9 @@ app.listen(PORT, async () => {
   ]);
 
   await new Promise(r => setTimeout(r, 2000));
-  channel_msg = detectStravaLastActivity();
-  if(channel_msg === ""){
-    console.log("There was an error creating the channel_msg!");
-  }else{
-    channel.send(channel_msg);
-  }
+  await detectStravaLastActivity(channel);
 });
 
-setInterval(() => {
-  channel_msg = detectStravaLastActivity()
-  if(channel_msg === ""){
-    console.log("There was an error creating the channel_msg!");
-  }else{
-    channel.send(channel_msg);
-  }
+setInterval(async () => {
+  await detectStravaLastActivity(channel)
 }, 300000);

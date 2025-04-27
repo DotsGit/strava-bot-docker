@@ -36,42 +36,41 @@ const getAccessToken = async () => {
 }
 
 
-export const detectStravaLastActivity = async () => {
+export const detectStravaLastActivity = async (channel) => {
     const lastActivityString = cache.get('lastActivityString', null) || 'No activities' 
     console.log('Last Activity: '+cache.get('lastActivityString', null))
 
     const accessToken = await getAccessToken()
+
 
     axios.get('https://www.strava.com/api/v3/clubs/'+process.env.STRAVA_CLUB_ID+'/activities?page=1&per_page=1', {
         headers: {
             'Authorization': 'Bearer '+accessToken
         }
     }).then((response) => {
-
         const data = response.data
-
         const activityName = data[0].name
         const athlete = data[0].athlete.firstname+' '+data[0].athlete.lastname
-        const dist = Number((data[0].distance/1609.34).toFixed(2))
+        const dist = Number((data[0].distance/1000).toFixed(2))
         const seconds = data[0].moving_time
         const secondsTot = data[0].elapsed_time
         let duration = 0
         if(seconds > 3600) {
-        const hours = Math.trunc(seconds/3600)
-        const minutes = ((seconds%3600)/60).toFixed(0)
-        duration = hours+' Hr '+minutes+' Min'
+            const hours = Math.trunc(seconds/3600)
+            const minutes = ((seconds%3600)/60).toFixed(0)
+            duration = hours+' Hr '+minutes+' Min'
         } else {
-        const minutes =(seconds/60).toFixed(0)
-        duration = minutes+' Min'
+            const minutes =(seconds/60).toFixed(0)
+            duration = minutes+' Min'
         }
         let durationTot = 0
         if(secondsTot > 3600) {
-        const hoursTot = Math.trunc(secondsTot/3600)
-        const minutesTot = ((secondsTot%3600)/60).toFixed(0)
-        durationTot = hoursTot+' Hr '+minutesTot+' Min'
+            const hoursTot = Math.trunc(secondsTot/3600)
+            const minutesTot = ((secondsTot%3600)/60).toFixed(0)
+            durationTot = hoursTot+' Hr '+minutesTot+' Min'
         } else {
-        const minutesTot = (seconds/60).toFixed(0)
-        durationTot = minutesTot+' Min'
+            const minutesTot = (seconds/60).toFixed(0)
+            durationTot = minutesTot+' Min'
         }
 
         const activityString = 'ATHL:'+athlete+'-DIST:'+dist+'-TIME:'+seconds
@@ -84,69 +83,69 @@ export const detectStravaLastActivity = async () => {
             const paceRaw = (seconds/dist)
             const paceMin = Math.trunc(paceRaw/60)
             let paceSec = (((paceRaw/60)%paceMin)*60).toFixed(0)
-        if(paceSec < 10) {
-            paceSec = paceSec.toString().padStart(2, '0')
+            
+            if(paceSec < 10) {
+                paceSec = paceSec.toString().padStart(2, '0')
+            }
+            const pace = paceMin+':'+paceSec
+
+            const activity = data[0].sport_type
+
+            let message
+            let exampleEmbed
+
+            if(activity === 'Ride') {
+                message = athlete+' just completed a '+dist+' KM '+activity.toLowerCase()+'!'
+
+                // inside a command, event listener, etc.
+                exampleEmbed = new EmbedBuilder()
+                .setColor('#5563fa')
+                .setTitle(activityName)
+                .setDescription(message)
+                .addFields(
+                    { name: 'Distance', value: dist+' KMs', inline: true },
+                    { name: 'Time', value: duration, inline: true },
+                    { name: 'Avg Speed', value: speed+' KMH', inline: true },
+                )
+                .setThumbnail('https://asweinrich.dev/media/WAVERUNNERS.png')         
+                .setTimestamp()
+                .setFooter({ text: 'MLC Wave Runners' , iconURL: 'https://asweinrich.dev/media/WAVERUNNERS.png'});
+            } else if(activity === 'Run') {
+
+                message = athlete+' just completed a '+dist+' KM '+activity.toLowerCase()+'!'
+
+                // inside a command, event listener, etc.
+                exampleEmbed = new EmbedBuilder()
+                .setColor('#77c471')
+                .setTitle(activityName)
+                .setDescription(message)
+                .addFields(
+                    { name: 'Distance', value: dist+' KMs', inline: true },
+                    { name: 'Time', value: duration, inline: true },
+                    { name: 'Avg Pace', value: pace+' per KM', inline: true },
+                )
+                .setThumbnail('https://asweinrich.dev/media/WAVERUNNERS.png')          
+                .setTimestamp()
+                .setFooter({ text: 'MLC Wave Runners' , iconURL: 'https://asweinrich.dev/media/WAVERUNNERS.png' });
+            } else {
+
+                message = athlete+' just completed a '+durationTot+' '+activity.toLowerCase()+' session!'
+
+                // inside a command, event listener, etc.
+                exampleEmbed = new EmbedBuilder()
+                .setColor('#aa0000')
+                .setTitle(activityName)
+                .setDescription(message)
+                .addFields(
+                    { name: 'Distance', value: dist+' KMs', inline: true },
+                    { name: 'Time', value: durationTot, inline: true },
+                )
+                .setThumbnail('https://asweinrich.dev/media/WAVERUNNERS.png')          
+                .setTimestamp()
+                .setFooter({ text: 'MLC Wave Runners' , iconURL: 'https://asweinrich.dev/media/WAVERUNNERS.png' });
+            }
+            channel.send({embeds: [exampleEmbed]})
         }
-        const pace = paceMin+':'+paceSec
-
-        const activity = data[0].sport_type
-
-        let message
-        let exampleEmbed
-
-        if(activity === 'Ride') {
-            message = athlete+' just completed a '+dist+' mile '+activity.toLowerCase()+'!'
-
-            // inside a command, event listener, etc.
-            exampleEmbed = new EmbedBuilder()
-            .setColor('#5563fa')
-            .setTitle(activityName)
-            .setDescription(message)
-            .addFields(
-                { name: 'Distance', value: (dist * 1,609)+' KMs', inline: true },
-                { name: 'Time', value: duration, inline: true },
-                { name: 'Avg Speed', value: (speed * 1,609)+' KMH', inline: true },
-            )
-            .setThumbnail('https://asweinrich.dev/media/WAVERUNNERS.png')         
-            .setTimestamp()
-            .setFooter({ text: 'MLC Wave Runners' , iconURL: 'https://asweinrich.dev/media/WAVERUNNERS.png'});
-        } else if(activity === 'Run') {
-
-            message = athlete+' just completed a '+dist+' mile '+activity.toLowerCase()+'!'
-
-            // inside a command, event listener, etc.
-            exampleEmbed = new EmbedBuilder()
-            .setColor('#77c471')
-            .setTitle(activityName)
-            .setDescription(message)
-            .addFields(
-                { name: 'Distance', value: (dist * 1,609)+' KMs', inline: true },
-                { name: 'Time', value: duration, inline: true },
-                { name: 'Avg Pace', value: (pace * 0.621371)+' per mile', inline: true },
-            )
-            .setThumbnail('https://asweinrich.dev/media/WAVERUNNERS.png')          
-            .setTimestamp()
-            .setFooter({ text: 'MLC Wave Runners' , iconURL: 'https://asweinrich.dev/media/WAVERUNNERS.png' });
-        } else {
-
-            message = athlete+' just completed a '+durationTot+' '+activity.toLowerCase()+' session!'
-
-            // inside a command, event listener, etc.
-            exampleEmbed = new EmbedBuilder()
-            .setColor('#aa0000')
-            .setTitle(activityName)
-            .setDescription(message)
-            .addFields(
-                { name: 'Distance', value: (dist * 1,609)+' KMs', inline: true },
-                { name: 'Time', value: durationTot, inline: true },
-            )
-            .setThumbnail('https://asweinrich.dev/media/WAVERUNNERS.png')          
-            .setTimestamp()
-            .setFooter({ text: 'MLC Wave Runners' , iconURL: 'https://asweinrich.dev/media/WAVERUNNERS.png' });
-        }
-        return {embeds: [exampleEmbed]};
-        }
-        
     }).catch((error) => {
         console.error(error);
     });

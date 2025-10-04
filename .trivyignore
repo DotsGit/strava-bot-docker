@@ -2,4 +2,4 @@
 CVE-2025-7783
 
 # Ignore ngrok (most likelly not being used)
-usr/src/node_modules/ngrok/bin/ngrok
+# usr/src/node_modules/ngrok/bin/ngrok  - trivy doesn't accept filepath from this document

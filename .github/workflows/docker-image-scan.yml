@@ -1,0 +1,40 @@
+name: Docker Image Trivy scan (no deploy)
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+  workflow_dispatch:
+    
+jobs:
+
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Build the Docker image
+      run: docker build . --file Dockerfile --tag strava-bot:${{ github.sha }}
+      
+    - name: Run Trivy vulnerability scanner
+      uses: aquasecurity/trivy-action@98b26b7b56ad844d1316f2693e06f923686cd4e1 # v0.33.1
+      with:
+        image-ref: 'docker.io/my-organization/my-app:${{ github.sha }}'
+        format: 'table'
+        exit-code: '1'
+        ignore-unfixed: true
+        vuln-type: 'os,library'
+        severity: 'CRITICAL,HIGH'
+
+    - name: Run Trivy to generate SBOM and submit it to Github dependency graph
+      uses: aquasecurity/trivy-action@98b26b7b56ad844d1316f2693e06f923686cd4e1 # v0.33.1
+      with:
+          scan-type: 'fs'
+          format: 'github'
+          output: 'dependency-results.sbom.json'
+          scan-ref: '.'
+          github-pat: ${{ secrets.GITHUB_TOKEN }}
+
+      

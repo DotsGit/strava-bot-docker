@@ -21,7 +21,7 @@ jobs:
     - name: Run Trivy vulnerability scanner
       uses: aquasecurity/trivy-action@98b26b7b56ad844d1316f2693e06f923686cd4e1 # v0.33.1
       with:
-        image-ref: 'docker.io/my-organization/my-app:${{ github.sha }}'
+        image-ref: 'strava-bot:${{ github.sha }}'
         format: 'table'
         exit-code: '1'
         ignore-unfixed: true

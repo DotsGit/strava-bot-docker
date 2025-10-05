@@ -27,6 +27,8 @@ jobs:
         ignore-unfixed: true
         vuln-type: 'os,library'
         severity: 'CRITICAL,HIGH'
+        trivyignores: '.trivyignore'
+        skip-files: 'usr/src/node_modules/ngrok/bin/ngrok' # skip ngrok as it's most likely not being used
 
     - name: Run Trivy to generate SBOM and submit it to Github dependency graph
       uses: aquasecurity/trivy-action@98b26b7b56ad844d1316f2693e06f923686cd4e1 # v0.33.1

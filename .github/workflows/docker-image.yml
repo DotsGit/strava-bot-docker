@@ -26,7 +26,7 @@ jobs:
         password: ${{ secrets.DOCKERHUB_TOKEN }}
 
     - name: Docker push to hub
+      if: ${{ github.actor }} == 'DotsGit'
       run: |
-         if: ${{ github.actor }} == 'DotsGit'
           docker push pontinhos/strava-bot-docker-image:${{vars.VERSION}}
           docker push pontinhos/strava-bot-docker-image:latest

@@ -27,6 +27,6 @@ jobs:
 
     - name: Docker push to hub
       run: |
-         if: github.actor == 'DotsGit'
+         if: ${{ github.actor }} == 'DotsGit'
           docker push pontinhos/strava-bot-docker-image:${{vars.VERSION}}
           docker push pontinhos/strava-bot-docker-image:latest
